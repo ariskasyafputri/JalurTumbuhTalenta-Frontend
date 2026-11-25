@@ -1,0 +1,51 @@
+/**
+ * FILE: app/globals.css
+ * PURPOSE:
+ *   Global stylesheet configuring Tailwind CSS base, component, and utility layers.
+ *   Provides reusable UI primitives (.btn, .btn-outline, .btn-danger, .input, .label,
+ *   .card, .alert-error, .alert-ok, .th, .td) and smooth full-width viewport defaults.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    @apply w-full overflow-x-hidden bg-slate-50 text-slate-800 antialiased;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-xl bg-brand-blue px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-brand-blue hover:bg-brand-light hover:text-brand-blue disabled:opacity-50;
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center rounded-lg border border-rose-200 bg-rose-50/70 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100;
+  }
+  .input {
+    @apply w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-brand-blue focus:ring-2 focus:ring-blue-100;
+  }
+  .label {
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-600;
+  }
+  .card {
+    @apply rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm sm:p-6;
+  }
+  .alert-error {
+    @apply rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700;
+  }
+  .alert-ok {
+    @apply rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700;
+  }
+  .th {
+    @apply whitespace-nowrap px-4 py-3.5 text-left text-xs font-bold uppercase tracking-wider text-slate-500;
+  }
+  .td {
+    @apply px-4 py-3.5 text-sm text-slate-700;
+  }
+}
