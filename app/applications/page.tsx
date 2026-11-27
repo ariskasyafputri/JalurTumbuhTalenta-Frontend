@@ -1,113 +1,118 @@
-/**
- * FILE: app/applications/page.tsx
- * PURPOSE:
- *   Candidate Application History Page (`/applications`).
- *   Protected for `candidate` users. Displays a full-width responsive table of submitted
- *   applications, real-time selection status badges, and an option to withdraw an application.
- */
-
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Briefcase } from 'lucide-react';
-import { api, errMsg } from '@/lib/api';
+import { useSearchParams } from 'next/navigation';
+import { Building2, ExternalLink, MapPin, Trash2 } from 'lucide-react';
+import { api, errMsg, qs } from '@/lib/api';
 import { dateID } from '@/lib/format';
 import { Meta, MyApplication } from '@/lib/types';
-import RoleGuard from '@/components/RoleGuard';
 import Pagination from '@/components/Pagination';
+import RoleGuard from '@/components/RoleGuard';
 import StatusBadge from '@/components/StatusBadge';
 
 function ApplicationsContent() {
-  const [items, setItems] = useState<MyApplication[]>([]);
+  const searchParams = useSearchParams();
+  const submitted = searchParams.get('submitted');
+
+  const [apps, setApps] = useState<MyApplication[]>([]);
   const [meta, setMeta] = useState<Meta | null>(null);
-  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const load = useCallback(() => {
-    api<{ data: MyApplication[]; meta: Meta }>(`/applications/me?page=${page}`)
-      .then((r) => {
-        setItems(r.data);
-        setMeta(r.meta);
-      })
-      .catch((e) => setError(errMsg(e)));
-  }, [page]);
-  useEffect(load, [load]);
+  const load = useCallback(async (page = 1) => {
+    setLoading(true);
+    try {
+      const res = await api<{ data: MyApplication[]; meta: Meta }>('/applications/me' + qs({ page, limit: 10 }));
+      setApps(res.data);
+      setMeta(res.meta);
+    } catch (e) {
+      setError(errMsg(e));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  async function withdraw(id: number) {
-    if (!confirm('Apakah Anda yakin ingin menarik/membatalkan lamaran ini?')) return;
+  useEffect(() => {
+    load(1);
+  }, [load]);
+
+  const handleWithdraw = async (id: number) => {
+    if (!confirm('Batalkan lamaran ini?')) return;
     try {
       await api(`/applications/${id}`, { method: 'DELETE' });
-      load();
+      load(meta?.page ?? 1);
     } catch (e) {
       setError(errMsg(e));
     }
-  }
+  };
 
   return (
-    <div className="w-full space-y-5 px-4 py-8 sm:px-6 lg:px-10">
-      <div className="card flex flex-wrap items-center justify-between gap-3">
+    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-10">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-brand-dark">Riwayat Lamaran Saya</h1>
-          <p className="text-xs text-slate-500">
-            Pantau perkembangan proses seleksi lamaran yang sudah Anda kirim
-          </p>
+          <h1 className="text-2xl font-extrabold text-brand-dark">Riwayat Lamaran Saya</h1>
+          <p className="text-xs text-slate-500">Pantau status seleksi lamaran yang sudah kamu kirimkan.</p>
         </div>
-        <Link href="/" className="btn-outline">
-          <Briefcase className="mr-1.5 h-4 w-4" /> Cari Lowongan Lain
+        <Link href="/" className="btn text-xs">
+          Cari Lowongan Lain
         </Link>
       </div>
 
-      {error && <div className="alert-error">{error}</div>}
+      {submitted && (
+        <div className="alert-ok mb-5">
+          Lamaran berhasil dikirim! Tim rekrutmen perusahaan akan meninjau profil dan CV kamu.
+        </div>
+      )}
+      {error && <div className="alert-error mb-5">{error}</div>}
 
-      <div className="card overflow-x-auto p-0">
-        <table className="w-full min-w-[640px]">
-          <thead className="border-b border-slate-200 bg-slate-50">
-            <tr>
-              <th className="th">Posisi Dilamar</th>
-              <th className="th">Perusahaan</th>
-              <th className="th">Tanggal Kirim</th>
-              <th className="th">Status Seleksi</th>
-              <th className="th text-right">Aksi</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {items.map((a) => (
-              <tr key={a.id} className="hover:bg-slate-50/70">
-                <td className="td">
-                  <Link
-                    href={`/jobs/${a.recruitment_id}`}
-                    className="font-semibold text-brand-blue hover:underline"
-                  >
-                    {a.title}
+      {loading ? (
+        <div className="card text-center text-sm text-slate-500">Memuat riwayat lamaran...</div>
+      ) : apps.length === 0 ? (
+        <div className="card py-12 text-center">
+          <p className="font-semibold text-slate-700">Belum ada lamaran kerja</p>
+          <Link href="/" className="btn mt-4 text-xs">
+            Jelajahi Lowongan Sekarang
+          </Link>
+        </div>
+      ) : (
+        <>
+          <div className="space-y-3">
+            {apps.map((a) => (
+              <div key={a.id} className="card flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2.5">
+                    <Link href={`/jobs/${a.recruitment_id}`} className="text-base font-bold text-brand-dark hover:text-brand-blue">
+                      {a.title}
+                    </Link>
+                    <StatusBadge status={a.status} />
+                  </div>
+                  <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                    <span className="inline-flex items-center gap-1 font-medium text-slate-700">
+                      <Building2 className="h-3.5 w-3.5" /> {a.company_name}
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <MapPin className="h-3.5 w-3.5" /> {a.province_name} ({a.employment_type_name})
+                    </span>
+                    <span>Dilamar pada {dateID(a.applied_at)}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Link href={`/jobs/${a.recruitment_id}`} className="btn-outline px-3 py-1.5 text-xs">
+                    <ExternalLink className="mr-1 h-3.5 w-3.5" /> Detail
                   </Link>
-                </td>
-                <td className="td font-medium text-slate-700">{a.company_name}</td>
-                <td className="td text-slate-500">{dateID(a.created_at)}</td>
-                <td className="td">
-                  <StatusBadge status={a.status} />
-                </td>
-                <td className="td text-right">
-                  <button className="btn-danger" onClick={() => withdraw(a.id)}>
-                    Tarik Lamaran
-                  </button>
-                </td>
-              </tr>
+                  {a.status === 'submitted' && (
+                    <button onClick={() => handleWithdraw(a.id)} className="btn-danger">
+                      <Trash2 className="mr-1 h-3.5 w-3.5" /> Batalkan
+                    </button>
+                  )}
+                </div>
+              </div>
             ))}
-            {items.length === 0 && (
-              <tr>
-                <td className="td py-12 text-center text-slate-500" colSpan={5}>
-                  Anda belum melamar lowongan apa pun.{' '}
-                  <Link href="/" className="font-semibold text-brand-blue hover:underline">
-                    Cari lowongan sekarang
-                  </Link>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      <Pagination meta={meta} onPage={setPage} />
+          </div>
+          <Pagination meta={meta} onPage={(p) => load(p)} />
+        </>
+      )}
     </div>
   );
 }
@@ -115,7 +120,9 @@ function ApplicationsContent() {
 export default function ApplicationsPage() {
   return (
     <RoleGuard roles={['candidate']}>
-      <ApplicationsContent />
+      <Suspense fallback={<div className="p-8 text-center text-sm text-slate-500">Memuat...</div>}>
+        <ApplicationsContent />
+      </Suspense>
     </RoleGuard>
   );
 }

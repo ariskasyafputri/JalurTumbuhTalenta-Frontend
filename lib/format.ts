@@ -1,24 +1,7 @@
-/**
- * FILE: lib/format.ts
- * PURPOSE:
- *   Presentation & Localization Helpers for Jalurtumbuh Jobs.
- *   Maps backend enum keys (`full_time`, `applied`, `super_admin`, etc.) to user-friendly
- *   Indonesian labels, badge color classes, formatted dates (`dateID`), and Rupiah salary
- *   ranges (`salary`).
- */
-
-export const typeLabel: Record<string, string> = {
-  full_time: 'Penuh Waktu',
-  part_time: 'Paruh Waktu',
-  contract: 'Kontrak',
-  internship: 'Magang',
-  freelance: 'Freelance',
-};
-
 export const roleLabel: Record<string, string> = {
   candidate: 'Kandidat',
   company: 'Perusahaan',
-  admin: 'Admin Rekrutmen',
+  admin: 'Admin',
   super_admin: 'Super Admin',
 };
 
@@ -26,10 +9,9 @@ export const statusLabel: Record<string, string> = {
   draft: 'Draft',
   open: 'Dibuka',
   closed: 'Ditutup',
-  applied: 'Dilamar',
+  submitted: 'Terkirim',
   reviewed: 'Ditinjau',
   interview: 'Interview',
-  offered: 'Ditawari',
   accepted: 'Diterima',
   rejected: 'Ditolak',
 };
@@ -38,12 +20,17 @@ export const statusColor: Record<string, string> = {
   draft: 'bg-slate-100 text-slate-600 border-slate-200',
   open: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   closed: 'bg-rose-50 text-rose-700 border-rose-200',
-  applied: 'bg-blue-50 text-blue-700 border-blue-200',
+  submitted: 'bg-blue-50 text-blue-700 border-blue-200',
   reviewed: 'bg-sky-50 text-sky-700 border-sky-200',
   interview: 'bg-amber-50 text-amber-700 border-amber-200',
-  offered: 'bg-purple-50 text-purple-700 border-purple-200',
   accepted: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   rejected: 'bg-rose-50 text-rose-700 border-rose-200',
+};
+
+export const planBadge: Record<string, string> = {
+  free: 'bg-slate-100 text-slate-700 border-slate-200',
+  pro: 'bg-blue-50 text-brand-blue border-blue-200',
+  enterprise: 'bg-amber-50 text-amber-700 border-amber-200',
 };
 
 export const dateID = (s?: string | null) =>

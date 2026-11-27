@@ -1,13 +1,5 @@
-/**
- * FILE: lib/api.ts
- * PURPOSE:
- *   Centralized REST API HTTP client (`api<T>`) connecting the Next.js frontend to the
- *   Express/Node backend (`NEXT_PUBLIC_API_URL`). Automatically attaches the JWT Bearer
- *   token from `localStorage`, strips empty filter values in `qs()`, and normalizes
- *   server error responses (`ApiError`, `errMsg`).
- */
-
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api';
+export const FILE_BASE = BASE.replace(/\/api$/, '');
 
 export class ApiError extends Error {
   constructor(
@@ -40,7 +32,22 @@ export async function api<T>(
   return data as T;
 }
 
-/** Converts a filter object into a URL query string while ignoring empty/undefined fields */
+export async function apiUpload<T>(path: string, formData: FormData): Promise<T> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  const res = await fetch(BASE + path, {
+    method: 'POST',
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: formData,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new ApiError(res.status, data.message ?? 'Gagal mengunggah file', data.errors);
+  }
+  return data as T;
+}
+
 export function qs(o: Record<string, string | number | undefined>) {
   const p = new URLSearchParams();
   Object.entries(o).forEach(([k, v]) => {
@@ -50,7 +57,6 @@ export function qs(o: Record<string, string | number | undefined>) {
   return s ? `?${s}` : '';
 }
 
-/** Extracts a human-readable Indonesian error message from an ApiError or network failure */
 export function errMsg(e: unknown) {
   if (e instanceof ApiError) {
     return e.errors?.length

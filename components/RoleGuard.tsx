@@ -1,11 +1,3 @@
-/**
- * FILE: components/RoleGuard.tsx
- * PURPOSE:
- *   Client-side Route & Role Access Guard component.
- *   Verifies user authentication state via `useAuth()`, redirects unauthenticated visitors
- *   to `/login`, and redirects unauthorized roles to their respective default landing route.
- */
-
 'use client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';

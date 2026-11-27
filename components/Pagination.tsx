@@ -1,10 +1,3 @@
-/**
- * FILE: components/Pagination.tsx
- * PURPOSE:
- *   Reusable Pagination component rendering page indicators (`Halaman X dari Y`)
- *   and Previous/Next action buttons whenever a paginated API response exceeds 1 page.
- */
-
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Meta } from '@/lib/types';
 

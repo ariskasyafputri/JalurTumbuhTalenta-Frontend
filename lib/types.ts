@@ -1,19 +1,22 @@
-/**
- * FILE: lib/types.ts
- * PURPOSE:
- *   Central TypeScript Domain Models & API Contract Interfaces.
- *   Defines strongly-typed schemas for Users, Roles, Recruitments, Companies,
- *   Applicants, Candidate Applications, Pagination Metadata, and Super Admin Statistics.
- */
-
 export type Role = 'candidate' | 'company' | 'admin' | 'super_admin';
+
+export interface CompanyMembership {
+  companyId: number;
+  companyName: string;
+  memberRole: 'owner' | 'recruiter';
+}
 
 export interface User {
   id: number;
   name: string;
   email: string;
   role: Role;
-  companyId: number | null;
+  companies: CompanyMembership[];
+}
+
+export interface MasterItem {
+  id: number;
+  name: string;
 }
 
 export interface Meta {
@@ -23,69 +26,132 @@ export interface Meta {
   totalPages: number;
 }
 
-export type EmploymentType = 'full_time' | 'part_time' | 'contract' | 'internship' | 'freelance';
 export type RecruitmentStatus = 'draft' | 'open' | 'closed';
-export type ApplicationStatus =
-  | 'applied'
-  | 'reviewed'
-  | 'interview'
-  | 'offered'
-  | 'accepted'
-  | 'rejected';
+export type ApplicationStatus = 'submitted' | 'reviewed' | 'interview' | 'accepted' | 'rejected';
 
 export interface Recruitment {
   id: number;
   company_id: number;
   company_name: string;
-  company_location: string | null;
+  company_industry: string | null;
+  company_verified: number;
+  subscription_plan: 'free' | 'pro' | 'enterprise';
+  category_id: number;
+  category_name: string;
+  employment_type_id: number;
+  employment_type_name: string;
+  province_id: number;
+  province_name: string;
   title: string;
-  description: string;
-  requirements: string | null;
-  location: string | null;
-  employment_type: EmploymentType;
+  detail_address: string;
   salary_min: number | null;
   salary_max: number | null;
+  description: string;
+  requirements: string;
+  opened_at: string;
+  closed_at: string;
   status: RecruitmentStatus;
-  deadline: string | null;
+  applicants_count?: number;
   created_at: string;
 }
 
 export interface Company {
   id: number;
   name: string;
-  description: string | null;
   industry: string | null;
-  location: string | null;
+  description: string | null;
+  npwp: string | null;
+  nib: string | null;
+  province_id: number | null;
+  province_name?: string | null;
+  detail_address: string | null;
   website: string | null;
+  phone: string | null;
+  subscription_plan: 'free' | 'pro' | 'enterprise';
+  max_active_jobs: number;
+  can_view_cv: number;
+  is_verified: number;
   open_recruitments?: number;
+  total_recruitments?: number;
+  active_recruitments?: number;
+  pic_emails?: string | null;
+}
+
+export interface CandidateProfile {
+  id: number;
+  user_id: number;
+  phone: string | null;
+  gender: 'Laki-laki' | 'Perempuan' | null;
+  birth_date: string | null;
+  province_id: number | null;
+  province_name?: string | null;
+  address: string | null;
+  headline: string | null;
+  summary: string | null;
+  education_level: string | null;
+  institution: string | null;
+  major: string | null;
+  graduation_year: string | null;
+  certifications: string | null;
+  skills: string | null;
+  portfolio_url: string | null;
+  linkedin_url: string | null;
+  cv_path: string | null;
+}
+
+export interface CandidateExperience {
+  id: number;
+  user_id: number;
+  job_title: string;
+  company_name: string;
+  employment_type: string | null;
+  start_date: string;
+  end_date: string | null;
+  is_current: number;
+  description: string | null;
+}
+
+export interface FullCandidateData {
+  user: { id: number; name: string; email: string };
+  profile: CandidateProfile;
+  experiences: CandidateExperience[];
+  completion: number;
 }
 
 export interface Applicant {
   id: number;
   status: ApplicationStatus;
   cover_letter: string | null;
-  resume_url: string | null;
-  created_at: string;
+  cv_snapshot_path: string | null;
+  notes: string | null;
+  applied_at: string;
   candidate_id: number;
   candidate_name: string;
   candidate_email: string;
+  phone: string | null;
+  headline: string | null;
+  education_level: string | null;
+  institution: string | null;
+  major: string | null;
+  graduation_year: string | null;
+  skills: string | null;
+  certifications: string | null;
+  portfolio_url: string | null;
+  cv_path: string | null;
+  province_name: string | null;
+  experiences: CandidateExperience[];
 }
 
 export interface MyApplication {
   id: number;
   status: ApplicationStatus;
-  created_at: string;
+  cover_letter: string | null;
+  applied_at: string;
   recruitment_id: number;
   title: string;
   company_name: string;
-}
-
-export interface AdminUser {
-  id: number;
-  name: string;
-  email: string;
-  is_active: number;
-  created_at: string;
+  province_name: string;
+  employment_type_name: string;
 }
 
 export interface ManagedUser {
@@ -93,10 +159,9 @@ export interface ManagedUser {
   name: string;
   email: string;
   role: Role;
-  company_id: number | null;
-  company_name: string | null;
   is_active: number;
   created_at: string;
+  companies: CompanyMembership[];
 }
 
 export interface Stats {

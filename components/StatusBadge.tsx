@@ -1,11 +1,3 @@
-/**
- * FILE: components/StatusBadge.tsx
- * PURPOSE:
- *   Reusable Status Badge component rendering a color-coded pill label for both
- *   recruitment statuses (`open`, `draft`, `closed`) and candidate application stages
- *   (`applied`, `reviewed`, `interview`, `offered`, `accepted`, `rejected`).
- */
-
 import { statusColor, statusLabel } from '@/lib/format';
 
 export default function StatusBadge({ status }: { status: string }) {
