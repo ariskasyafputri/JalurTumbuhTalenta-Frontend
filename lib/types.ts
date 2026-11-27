@@ -157,6 +157,7 @@ export interface MyApplication {
   id: number;
   status: ApplicationStatus;
   cover_letter: string | null;
+  notes?: string | null;
   applied_at: string;
   recruitment_id: number;
   recruitment_slug?: string;

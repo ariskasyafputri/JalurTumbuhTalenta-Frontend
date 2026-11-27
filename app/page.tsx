@@ -648,7 +648,7 @@ export default function HomePage() {
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-slate-600">
                 Simpan data diri, riwayat pendidikan, dan CV sekali di
-                profilmu—gunakan langsung untuk melamar ke berbagai posisi.
+                profilmu, gunakan langsung untuk melamar ke berbagai posisi.
               </p>
             </div>
 
@@ -660,7 +660,7 @@ export default function HomePage() {
                 Status Lamaran Real-Time
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                Tidak perlu menebak-nebak—pantau setiap tahap seleksi mulai dari
+                Tidak perlu menebak-nebak, pantau setiap tahap seleksi mulai dari
                 review berkas, wawancara, hingga keputusan akhir.
               </p>
             </div>

@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <p className="font-semibold text-slate-800">
                 Jalurtumbuh Jobs · Cari Kerja · Temukan Talenta
               </p>
-              <p>© 2026 jalurtumbuh.id & jalurtumbuh.co.id. All rights reserved.</p>
+              <p>© 2026 jalurtumbuh.com. All rights reserved.</p>
             </div>
           </footer>
         </AuthProvider>

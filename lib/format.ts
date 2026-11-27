@@ -44,7 +44,8 @@ export const dateID = (s?: string | null) =>
 
 const rp = (n: number) => 'Rp ' + n.toLocaleString('id-ID');
 
-export function salary(min: number | null, max: number | null) {
+export function salary(min: number | null, max: number | null, hideSalary?: boolean | number | null) {
+  if (Boolean(hideSalary)) return 'Gaji tidak ditampilkan';
   if (min && max) return `${rp(min)} – ${rp(max)}`;
   if (min) return `Mulai ${rp(min)}`;
   if (max) return `Hingga ${rp(max)}`;
