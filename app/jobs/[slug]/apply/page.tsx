@@ -8,7 +8,7 @@ import { FullCandidateData, Recruitment } from '@/lib/types';
 import RoleGuard from '@/components/RoleGuard';
 
 export default function ApplyJobPage() {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const router = useRouter();
 
   const [job, setJob] = useState<Recruitment | null>(null);
@@ -20,7 +20,7 @@ export default function ApplyJobPage() {
 
   useEffect(() => {
     Promise.all([
-      api<{ data: Recruitment }>(`/recruitments/${id}`),
+      api<{ data: Recruitment }>(`/recruitments/${slug}`),
       api<{ data: FullCandidateData }>('/candidate/profile'),
     ])
       .then(([jRes, cRes]) => {
@@ -29,14 +29,15 @@ export default function ApplyJobPage() {
       })
       .catch((e) => setError(errMsg(e)))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [slug]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!job) return;
     setSubmitting(true);
     setError('');
     try {
-      await api(`/applications/apply/${id}`, {
+      await api(`/applications/apply/${job.id}`, {
         method: 'POST',
         body: { coverLetter: coverLetter.trim() || undefined },
       });
@@ -51,7 +52,7 @@ export default function ApplyJobPage() {
   return (
     <RoleGuard roles={['candidate']}>
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-        <Link href={`/jobs/${id}`} className="inline-flex items-center text-sm font-medium text-slate-600 hover:text-brand-blue">
+        <Link href={`/jobs/${slug}`} className="inline-flex items-center text-sm font-medium text-slate-600 hover:text-brand-blue">
           <ArrowLeft className="mr-1.5 h-4 w-4" /> Kembali ke Detail Lowongan
         </Link>
 
@@ -63,7 +64,7 @@ export default function ApplyJobPage() {
 
             {/* HEADER LOWONGAN */}
             {job && (
-              <div className="card bg-brand-light/40 border-brand-blue/20">
+              <div className="card border-brand-blue/20 bg-brand-light/40">
                 <p className="text-xs font-bold uppercase text-brand-blue">Konfirmasi Lamaran Kerja</p>
                 <h1 className="mt-1 text-xl font-extrabold text-brand-dark">{job.title}</h1>
                 <p className="text-sm text-slate-600">
@@ -72,7 +73,7 @@ export default function ApplyJobPage() {
               </div>
             )}
 
-            {/* RINGKASAN PROFIL KANDIDAT (APAKAH MAU UPDATE DATA ATAU LANGSUNG SUBMIT) */}
+            {/* RINGKASAN PROFIL KANDIDAT */}
             {candidate && (
               <div className="card">
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
@@ -82,8 +83,8 @@ export default function ApplyJobPage() {
                       Kelengkapan profil kamu saat ini: <strong className="text-brand-blue">{candidate.completion}%</strong>
                     </p>
                   </div>
-                  <Link href={`/profile?returnTo=/jobs/${id}/apply`} className="btn-outline text-xs">
-                    <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Update Data Profil / CV Dulu
+                  <Link href={`/profile?returnTo=/jobs/${slug}/apply`} className="btn-outline text-xs">
+                    <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Update Data Profil / CV 
                   </Link>
                 </div>
 
@@ -153,12 +154,10 @@ export default function ApplyJobPage() {
               </div>
 
               <div className="flex flex-wrap justify-end gap-3">
-                <Link href={`/profile?returnTo=/jobs/${id}/apply`} className="btn-outline">
-                  Ubah Profil Dulu
-                </Link>
+             
                 <button type="submit" className="btn" disabled={submitting}>
                   <Send className="mr-2 h-4 w-4" />
-                  {submitting ? 'Mengirim Lamaran...' : 'Langsung Submit Lamaran'}
+                  {submitting ? 'Mengirim Lamaran...' : 'Submit Lamaran'}
                 </button>
               </div>
             </form>

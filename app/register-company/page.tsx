@@ -106,7 +106,7 @@ export default function RegisterCompanyPage() {
               <input className="input" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
             <div>
-              <label className="label">Lokasi Provinsi (Database)</label>
+              <label className="label">Lokasi Provinsi</label>
               <select className="input" value={provinceId} onChange={(e) => setProvinceId(e.target.value)}>
                 <option value="">-- Pilih Provinsi --</option>
                 {provinces.map((p) => (

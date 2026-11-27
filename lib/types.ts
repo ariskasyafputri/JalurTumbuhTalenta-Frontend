@@ -31,9 +31,12 @@ export type ApplicationStatus = 'submitted' | 'reviewed' | 'interview' | 'accept
 
 export interface Recruitment {
   id: number;
+  slug: string;
   company_id: number;
   company_name: string;
+  company_logo_path?: string | null;
   company_industry: string | null;
+  company_size?: string | null;
   company_verified: number;
   subscription_plan: 'free' | 'pro' | 'enterprise';
   category_id: number;
@@ -46,6 +49,9 @@ export interface Recruitment {
   detail_address: string;
   salary_min: number | null;
   salary_max: number | null;
+  hide_salary?: number | boolean;
+  min_experience?: string | null;
+  benefits?: MasterItem[];
   description: string;
   requirements: string;
   opened_at: string;
@@ -58,7 +64,9 @@ export interface Recruitment {
 export interface Company {
   id: number;
   name: string;
+  logo_path?: string | null;
   industry: string | null;
+  company_size?: string | null;
   description: string | null;
   npwp: string | null;
   nib: string | null;
@@ -80,6 +88,7 @@ export interface Company {
 export interface CandidateProfile {
   id: number;
   user_id: number;
+  photo_path?: string | null;
   phone: string | null;
   gender: 'Laki-laki' | 'Perempuan' | null;
   birth_date: string | null;
@@ -96,6 +105,7 @@ export interface CandidateProfile {
   skills: string | null;
   portfolio_url: string | null;
   linkedin_url: string | null;
+  social_media_url?: string | null;
   cv_path: string | null;
 }
 
@@ -129,6 +139,7 @@ export interface Applicant {
   candidate_name: string;
   candidate_email: string;
   phone: string | null;
+  photo_path?: string | null;
   headline: string | null;
   education_level: string | null;
   institution: string | null;
@@ -148,8 +159,10 @@ export interface MyApplication {
   cover_letter: string | null;
   applied_at: string;
   recruitment_id: number;
+  recruitment_slug?: string;
   title: string;
   company_name: string;
+  company_logo_path?: string | null;
   province_name: string;
   employment_type_name: string;
 }

@@ -3,7 +3,7 @@ import { Suspense, useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Building2, ExternalLink, MapPin, Trash2 } from 'lucide-react';
-import { api, errMsg, qs } from '@/lib/api';
+import { api, errMsg, FILE_BASE, qs } from '@/lib/api';
 import { dateID } from '@/lib/format';
 import { Meta, MyApplication } from '@/lib/types';
 import Pagination from '@/components/Pagination';
@@ -77,38 +77,52 @@ function ApplicationsContent() {
       ) : (
         <>
           <div className="space-y-3">
-            {apps.map((a) => (
-              <div key={a.id} className="card flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2.5">
-                    <Link href={`/jobs/${a.recruitment_id}`} className="text-base font-bold text-brand-dark hover:text-brand-blue">
-                      {a.title}
-                    </Link>
-                    <StatusBadge status={a.status} />
-                  </div>
-                  <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                    <span className="inline-flex items-center gap-1 font-medium text-slate-700">
-                      <Building2 className="h-3.5 w-3.5" /> {a.company_name}
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <MapPin className="h-3.5 w-3.5" /> {a.province_name} ({a.employment_type_name})
-                    </span>
-                    <span>Dilamar pada {dateID(a.applied_at)}</span>
-                  </div>
-                </div>
+            {apps.map((a) => {
+              const jobIdentifier = a.recruitment_slug || a.recruitment_id;
+              const rawLogo = a.company_logo_path || '';
+              const companyLogo = rawLogo ? (rawLogo.startsWith('http') ? rawLogo : `${FILE_BASE}${rawLogo}`) : '';
 
-                <div className="flex items-center gap-2">
-                  <Link href={`/jobs/${a.recruitment_id}`} className="btn-outline px-3 py-1.5 text-xs">
-                    <ExternalLink className="mr-1 h-3.5 w-3.5" /> Detail
-                  </Link>
-                  {a.status === 'submitted' && (
-                    <button onClick={() => handleWithdraw(a.id)} className="btn-danger">
-                      <Trash2 className="mr-1 h-3.5 w-3.5" /> Batalkan
-                    </button>
-                  )}
+              return (
+                <div key={a.id} className="card flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex items-start gap-3.5">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+                      {companyLogo ? (
+                        <img src={companyLogo} alt={a.company_name} className="h-full w-full object-contain p-1" />
+                      ) : (
+                        <Building2 className="h-5 w-5 text-slate-400" />
+                      )}
+                    </div>
+
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <Link href={`/jobs/${jobIdentifier}`} className="text-base font-bold text-brand-dark hover:text-brand-blue">
+                          {a.title}
+                        </Link>
+                        <StatusBadge status={a.status} />
+                      </div>
+                      <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                        <span className="font-medium text-slate-700">{a.company_name}</span>
+                        <span className="inline-flex items-center gap-1">
+                          <MapPin className="h-3.5 w-3.5" /> {a.province_name} ({a.employment_type_name})
+                        </span>
+                        <span>Dilamar pada {dateID(a.applied_at)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Link href={`/jobs/${jobIdentifier}`} className="btn-outline px-3 py-1.5 text-xs">
+                      <ExternalLink className="mr-1 h-3.5 w-3.5" /> Detail
+                    </Link>
+                    {a.status === 'submitted' && (
+                      <button onClick={() => handleWithdraw(a.id)} className="btn-danger">
+                        <Trash2 className="mr-1 h-3.5 w-3.5" /> Batalkan
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <Pagination meta={meta} onPage={(p) => load(p)} />
         </>

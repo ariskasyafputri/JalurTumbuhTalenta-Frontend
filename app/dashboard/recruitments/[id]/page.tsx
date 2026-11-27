@@ -2,7 +2,17 @@
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Briefcase, ExternalLink, FileText, GraduationCap, Mail, Phone } from 'lucide-react';
+import {
+  ArrowLeft,
+  Briefcase,
+  ExternalLink,
+  FileText,
+  GraduationCap,
+  Mail,
+  MessageCircle,
+  Phone,
+  User,
+} from 'lucide-react';
 import { api, errMsg, FILE_BASE, qs } from '@/lib/api';
 import { dateID } from '@/lib/format';
 import { Applicant, ApplicationStatus, Meta, Recruitment } from '@/lib/types';
@@ -10,6 +20,13 @@ import Pagination from '@/components/Pagination';
 import RecruitmentForm from '@/components/RecruitmentForm';
 import RoleGuard from '@/components/RoleGuard';
 import StatusBadge from '@/components/StatusBadge';
+
+function formatWhatsAppUrl(phone: string) {
+  const digits = phone.replace(/\D/g, '');
+  if (!digits) return '';
+  const normalized = digits.startsWith('0') ? `62${digits.slice(1)}` : digits;
+  return `https://wa.me/${normalized}`;
+}
 
 function ManageRecruitmentContent() {
   const { id } = useParams<{ id: string }>();
@@ -60,7 +77,7 @@ function ManageRecruitmentContent() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-10 space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6 px-4 py-8 sm:px-6 lg:px-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link href="/dashboard" className="inline-flex items-center text-sm font-medium text-slate-600 hover:text-brand-blue">
           <ArrowLeft className="mr-1.5 h-4 w-4" /> Kembali ke Dashboard
@@ -87,13 +104,26 @@ function ManageRecruitmentContent() {
             {/* JOB HEADER */}
             <div className="card flex flex-wrap items-center justify-between gap-4">
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <h1 className="text-xl font-extrabold text-brand-dark">{job.title}</h1>
                   <StatusBadge status={job.status} />
                 </div>
                 <p className="mt-1 text-xs text-slate-500">
                   {job.company_name} · {job.category_name} · {job.employment_type_name} · {job.province_name}
+                  {job.min_experience ? ` · ${job.min_experience}` : ''}
                 </p>
+                {job.benefits && job.benefits.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {job.benefits.map((b) => (
+                      <span
+                        key={b.id}
+                        className="rounded-md bg-brand-light px-2 py-0.5 text-[11px] font-medium text-brand-blue"
+                      >
+                        {b.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div>
@@ -121,25 +151,63 @@ function ManageRecruitmentContent() {
               <div className="space-y-4">
                 {applicants.map((a) => {
                   const cvLink = a.cv_snapshot_path || a.cv_path;
+                  const waUrl = a.phone ? formatWhatsAppUrl(a.phone) : '';
                   return (
                     <div key={a.id} className="card space-y-4">
                       <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 pb-4">
-                        <div>
-                          <div className="flex items-center gap-2.5">
-                            <h2 className="text-lg font-bold text-brand-dark">{a.candidate_name}</h2>
-                            <StatusBadge status={a.status} />
-                          </div>
-                          {a.headline && <p className="text-xs font-medium text-brand-blue">{a.headline}</p>}
-                          <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-500">
-                            <span className="inline-flex items-center gap-1">
-                              <Mail className="h-3.5 w-3.5" /> {a.candidate_email}
-                            </span>
-                            {a.phone && (
-                              <span className="inline-flex items-center gap-1">
-                                <Phone className="h-3.5 w-3.5" /> {a.phone}
-                              </span>
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-slate-100">
+                            {a.photo_path ? (
+                              <img
+                                src={a.photo_path.startsWith('http') ? a.photo_path : `${FILE_BASE}${a.photo_path}`}
+                                alt={a.candidate_name}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <User className="h-5 w-5 text-slate-400" />
                             )}
-                            <span>Melamar: {dateID(a.applied_at)}</span>
+                          </div>
+
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2.5">
+                              <h2 className="text-lg font-bold text-brand-dark">{a.candidate_name}</h2>
+                              <StatusBadge status={a.status} />
+                            </div>
+                            {a.headline && <p className="text-xs font-medium text-brand-blue">{a.headline}</p>}
+
+                            {/* PREVIEW KONTAK: EMAIL & NO TELEPON / WHATSAPP KANDIDAT */}
+                            <div className="mt-2 flex flex-wrap items-center gap-2.5 text-xs">
+                              <a
+                                href={`mailto:${a.candidate_email}`}
+                                className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-slate-700 hover:border-brand-blue hover:text-brand-blue"
+                              >
+                                <Mail className="h-3.5 w-3.5 text-slate-400" /> {a.candidate_email}
+                              </a>
+
+                              {a.phone ? (
+                                <div className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50/70 px-2.5 py-1 font-semibold text-emerald-800">
+                                  <Phone className="h-3.5 w-3.5 text-emerald-600" />
+                                  <span>{a.phone}</span>
+                                  {waUrl && (
+                                    <a
+                                      href={waUrl}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="ml-1 inline-flex items-center gap-0.5 rounded bg-emerald-600 px-1.5 py-0.5 text-[10px] font-bold text-white hover:bg-emerald-700"
+                                      title="Hubungi via WhatsApp"
+                                    >
+                                      <MessageCircle className="h-3 w-3" /> WA
+                                    </a>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-slate-400">
+                                  <Phone className="h-3.5 w-3.5" /> No. Telp belum diisi
+                                </span>
+                              )}
+
+                              <span className="text-slate-400">· Melamar: {dateID(a.applied_at)}</span>
+                            </div>
                           </div>
                         </div>
 
