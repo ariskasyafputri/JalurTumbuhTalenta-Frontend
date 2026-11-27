@@ -39,10 +39,10 @@ export default function CompanyDashboardPage() {
     loadJobs(1);
   }, [loadJobs]);
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (slug: string) => {
     if (!confirm('Hapus lowongan ini beserta data lamarannya?')) return;
     try {
-      await api(`/recruitments/${id}`, { method: 'DELETE' });
+      await api(`/recruitments/${encodeURIComponent(slug)}`, { method: 'DELETE' });
       loadJobs(meta?.page ?? 1);
     } catch (e) {
       setError(errMsg(e));
@@ -119,7 +119,7 @@ export default function CompanyDashboardPage() {
                       </td>
                       <td className="td">
                         <Link
-                          href={`/dashboard/recruitments/${j.id}`}
+                          href={`/dashboard/recruitments/${j.slug}`}
                           className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-bold text-brand-blue hover:bg-blue-100"
                         >
                           <Users className="h-3.5 w-3.5" /> {j.applicants_count ?? 0} Pelamar
@@ -131,21 +131,21 @@ export default function CompanyDashboardPage() {
                       <td className="td text-right">
                         <div className="inline-flex items-center gap-1.5">
                           <Link
-                            href={`/dashboard/recruitments/${j.id}`}
+                            href={`/dashboard/recruitments/${j.slug}`}
                             className="btn-outline px-2.5 py-1.5 text-xs"
                             title="Lihat Pelamar & Edit"
                           >
                             <Eye className="h-3.5 w-3.5" />
                           </Link>
                           <Link
-                            href={`/dashboard/recruitments/${j.id}?edit=1`}
+                            href={`/dashboard/recruitments/${j.slug}?edit=1`}
                             className="btn-outline px-2.5 py-1.5 text-xs"
                             title="Edit Lowongan"
                           >
                             <Edit3 className="h-3.5 w-3.5" />
                           </Link>
                           <button
-                            onClick={() => handleDelete(j.id)}
+                            onClick={() => handleDelete(j.slug)}
                             className="btn-danger px-2.5 py-1.5"
                             title="Hapus Lowongan"
                           >

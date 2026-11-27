@@ -39,7 +39,7 @@ export default function SuperAdminPortalPage() {
   const [msg, setMsg] = useState('');
   const [error, setError] = useState('');
 
-  // Form tambah user baru (bisa nambah Admin, Company multi-aplikasi, Candidate, SuperAdmin)
+  // Form tambah user baru (bisa nambah Admin, Company, Candidate, SuperAdmin)
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -178,7 +178,7 @@ export default function SuperAdminPortalPage() {
             </span>
             <h1 className="mt-2 text-xl font-extrabold text-brand-dark">Login Super Admin</h1>
             <p className="mt-1 text-xs text-slate-500">
-              Akses penuh untuk menambah user (Admin, Perusahaan Multi-Aplikasi, Kandidat) dan CRUD sistem.
+              Akses penuh untuk menambah user (Admin, Perusahaan, Kandidat) dan CRUD sistem.
             </p>
           </div>
 
@@ -284,14 +284,14 @@ export default function SuperAdminPortalPage() {
             <label className="label">Role Akun *</label>
             <select className="input" value={newRole} onChange={(e) => setNewRole(e.target.value as Role)}>
               <option value="admin">Admin</option>
-              <option value="company">Perusahaan (Multi-Aplikasi)</option>
+              <option value="company">Perusahaan</option>
               <option value="candidate">Kandidat</option>
               <option value="super_admin">Super Admin</option>
             </select>
           </div>
         </div>
 
-        {/* JIKA ROLE COMPANY: PILIH MULTI PERUSAHAAN YANG TERHUBUNG */}
+        {/* JIKA ROLE COMPANY: PILIH PERUSAHAAN YANG TERHUBUNG */}
         {newRole === 'company' && companies.length > 0 && (
           <div className="rounded-xl bg-slate-50 p-3">
             <p className="text-xs font-bold uppercase text-slate-500">

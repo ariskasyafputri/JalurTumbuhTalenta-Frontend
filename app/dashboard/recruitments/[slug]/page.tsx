@@ -29,7 +29,8 @@ function formatWhatsAppUrl(phone: string) {
 }
 
 function ManageRecruitmentContent() {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams();
+  const slug = String(params?.slug || '');
   const searchParams = useSearchParams();
   const [editMode, setEditMode] = useState(searchParams.get('edit') === '1');
 
@@ -42,13 +43,16 @@ function ManageRecruitmentContent() {
 
   const loadAll = useCallback(
     async (page = 1) => {
+      if (!slug) return;
       setLoading(true);
       setError('');
       try {
+        const encodedSlug = encodeURIComponent(slug);
         const [jRes, aRes] = await Promise.all([
-          api<{ data: Recruitment }>(`/recruitments/${id}`),
+          api<{ data: Recruitment }>(`/recruitments/${encodedSlug}`),
           api<{ data: Applicant[]; meta: Meta }>(
-            `/recruitments/${id}/applications` + qs({ status: statusFilter || undefined, page, limit: 10 })
+            `/recruitments/${encodedSlug}/applications` +
+              qs({ status: statusFilter || undefined, page, limit: 10 })
           ),
         ]);
         setJob(jRes.data);
@@ -60,7 +64,7 @@ function ManageRecruitmentContent() {
         setLoading(false);
       }
     },
-    [id, statusFilter]
+    [slug, statusFilter]
   );
 
   useEffect(() => {

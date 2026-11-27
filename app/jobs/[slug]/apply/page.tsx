@@ -21,7 +21,7 @@ export default function ApplyJobPage() {
 
   useEffect(() => {
     Promise.all([
-      api<{ data: Recruitment }>(`/recruitments/${slug}`),
+      api<{ data: Recruitment }>(`/recruitments/${encodeURIComponent(slug)}`),
       api<{ data: FullCandidateData }>('/candidate/profile'),
       api<{ data: MyApplication[] }>('/applications/me?page=1&limit=100').catch(() => ({
         data: [] as MyApplication[],
@@ -45,7 +45,7 @@ export default function ApplyJobPage() {
     setSubmitting(true);
     setError('');
     try {
-      await api(`/applications/apply/${job.id}`, {
+      await api(`/applications/apply/${encodeURIComponent(job.slug || slug)}`, {
         method: 'POST',
         body: { coverLetter: coverLetter.trim() || undefined },
       });

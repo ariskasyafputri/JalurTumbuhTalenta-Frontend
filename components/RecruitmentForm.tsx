@@ -101,7 +101,7 @@ export default function RecruitmentForm({ initial }: { initial?: Recruitment }) 
         requirements,
       };
       if (initial) {
-        await api(`/recruitments/${initial.id}`, { method: 'PATCH', body: payload });
+        await api(`/recruitments/${encodeURIComponent(initial.slug)}`, { method: 'PATCH', body: payload });
       } else {
         await api('/recruitments', { method: 'POST', body: payload });
       }
